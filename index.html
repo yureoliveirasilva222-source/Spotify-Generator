@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlackHaze - Generator</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0d0d0d, #1a001a);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .container {
+      background: rgba(20, 20, 20, 0.9);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(150, 0, 200, 0.7);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      animation: fadeIn 1s ease;
+    }
+    h1 { color: #a64dff; margin-bottom: 20px; }
+    input, button { width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 8px; font-size: 15px; }
+    input { background: #222; color: #fff; }
+    button { background: #a64dff; color: #fff; cursor: pointer; font-weight: bold; transition: 0.3s; }
+    button:hover { background: #8e3de0; }
+    .hidden { display: none; }
+    .subtitle { font-size: 14px; color: #ccc; margin: 5px 0 20px; }
+    a { color: #a64dff; text-decoration: none; font-weight: bold; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+  <!-- TELA DE LOGIN -->
+  <div id="login" class="container">
+    <h1>BlackHaze Access</h1>
+    <input type="text" id="keyInput" placeholder="Digite sua chave de acesso">
+    <button onclick="checkKey()">Entrar</button>
+    <p id="loginError" style="color:red; display:none;">❌ Chave inválida!</p>
+  </div>
+
+  <!-- TELA PRINCIPAL -->
+  <div id="panel" class="container hidden">
+    <img src="https://cdn.discordapp.com/icons/1401973625581600829/11cc535babef0a19e881485a97d86c81.png?size=2048" alt="Logo BlackHaze" width="80">
+    <h1>BlackHaze</h1>
+    <p class="subtitle">#MelhorVazamentos</p>
+    <p><a href="https://discord.gg/rCzHjWywtx" target="_blank">discord.gg/blackhaze</a></p>
+
+    <input type="number" id="quantidade" placeholder="Quantidade de códigos">
+    <input type="text" id="webhook" placeholder="Webhook URL">
+    <button onclick="gerarCodigos()">Gerar e Enviar</button>
+
+    <p id="status"></p>
+  </div>
+
+  <script>
+    // Chaves válidas
+    const validKeys = ["blackhaze-key-2222", "blackhaze-key-9999"];
+
+    function checkKey() {
+      const key = document.getElementById("keyInput").value.trim();
+      if (validKeys.includes(key)) {
+        document.getElementById("login").classList.add("hidden");
+        document.getElementById("panel").classList.remove("hidden");
+      } else {
+        document.getElementById("loginError").style.display = "block";
+      }
+    }
+
+    function gerarCodigos() {
+      const qtd = parseInt(document.getElementById("quantidade").value);
+      const webhook = document.getElementById("webhook").value.trim();
+      const status = document.getElementById("status");
+
+      if (!qtd || !webhook) {
+        status.style.color = "red";
+        status.innerText = "Preencha quantidade e webhook!";
+        return;
+      }
+
+      // Gerar links simulados do Spotify
+      let codigos = [];
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      for (let i = 0; i < qtd; i++) {
+        let code = "";
+        for (let j = 0; j < 20; j++) {
+          code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        codigos.push(`https://www.spotify.com/br-pt/ppt/microsoft/?code=${code}`);
+      }
+
+      // Enviar para webhook
+      fetch(webhook, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: codigos.join("\n") })
+      })
+      .then(res => {
+        if (res.ok) {
+          status.style.color = "lime";
+          status.innerText = "✅ Links gerados e enviados com sucesso!";
+        } else {
+          status.style.color = "red";
+          status.innerText = "❌ Erro ao enviar para o webhook.";
+        }
+      })
+      .catch(() => {
+        status.style.color = "red";
+        status.innerText = "❌ Webhook inválido ou erro de conexão.";
+      });
+    }
+  </script>
+</body>
+</html>
